@@ -63,7 +63,7 @@ public class ExpenseController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteExpense(@PathVariable Integer id) {
+    public void deleteExpense(@PathVariable String id) {
         expenseRepository.deleteById(id);
     }
 
@@ -145,7 +145,7 @@ public class ExpenseController {
     }
 
     @PutMapping("/{id}/category")
-    public Expense updateCategory(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+    public Expense updateCategory(@PathVariable String id, @RequestBody Map<String, String> body) {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Expense not found"));
         expense.setCategory(body.get("category"));
