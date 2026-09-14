@@ -152,6 +152,11 @@ public class ExpenseController {
         return expenseRepository.save(expense);
     }
 
+    @DeleteMapping("/archives/{id}")
+    public void deleteArchive(@PathVariable String id) {
+        monthlyArchiveRepository.deleteById(id);
+    }
+
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportExcel() throws IOException {
         List<Expense> expenses = expenseRepository.findAll();

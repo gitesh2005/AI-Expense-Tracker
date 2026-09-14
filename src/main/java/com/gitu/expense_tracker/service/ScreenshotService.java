@@ -62,7 +62,7 @@ public class ScreenshotService {
         body.put("model", "qwen/qwen3.6-27b");
         body.put("messages", List.of(message));
         body.put("temperature", 0.2);
-        body.put("max_completion_tokens", 300);
+        body.put("max_completion_tokens", 500);
         body.put("response_format", Map.of("type", "json_object"));
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
