@@ -1,74 +1,67 @@
-# AI Expense Tracker
+# AI Expense Tracker — Backend
 
-A full-stack expense tracker that eliminates manual data entry — type, speak, or upload a payment screenshot, and AI handles the rest.
+Spring Boot REST API for the AI Expense Tracker. Authenticated users can add
+expenses manually or from a supported payment screenshot, review category and
+monthly summaries, request AI savings suggestions, and export their data to
+Excel.
 
-🔗 **Live Demo:** [ai-expense-tracker-frontend.netlify.app](https://ai-expense-tracker-frontend.netlify.app)
-🔗 **Backend API:** [ai-expense-tracker-ow9p.onrender.com](https://ai-expense-tracker-ow9p.onrender.com)
+## Live services
 
-> Note: Backend is on Render's free tier, so the first request after inactivity may take 30-60 seconds to wake up.
+- **Frontend:** [ai-expense-tracker-frontend.netlify.app](https://ai-expense-tracker-frontend.netlify.app)
+- **Backend API:** [ai-expense-tracker-ow9p.onrender.com](https://ai-expense-tracker-ow9p.onrender.com)
+
+The hosted backend runs on Render's free tier, so the first request after
+inactivity can take 30–60 seconds while it wakes up.
+
+## Local setup
+
+### Backend
+
+1. Start MongoDB locally or create a MongoDB Atlas cluster.
+2. Copy `src/main/resources/application.properties.example` to
+   `src/main/resources/application.properties`.
+3. Set `SPRING_DATA_MONGODB_URI`, `GROQ_API_KEY`, `GROQ_API_URL`, `GROQ_MODEL`,
+   and a random `JWT_SECRET` (at least 32 UTF-8 bytes).
+4. Keep `CORS_ALLOWED_ORIGINS` at its default for the Vite frontend, or set it
+   to a comma-separated list of trusted frontend origins.
+5. Run the API:
+
+   ```bash
+   ./mvnw spring-boot:run
+   ```
+
+The API listens on `http://localhost:8080` by default. `GET /api/health` is a
+public health check; all expense endpoints require a JWT returned by
+`POST /api/auth/register` or `POST /api/auth/login`.
+
+### Frontend
+
+The frontend lives in the sibling `expense-tracker-frontend` directory. From
+that directory:
+
+```bash
+npm ci
+copy .env.example .env.local       # PowerShell: Copy-Item .env.example .env.local
+npm run dev
+```
+
+The default `VITE_API_BASE_URL=/api` uses the Vite development proxy to forward
+API calls to `http://localhost:8080`. Set `VITE_DEV_API_PROXY_TARGET` when the
+backend runs on another local port. For a separately hosted frontend, set
+`VITE_API_BASE_URL` to the deployed API's `/api` URL at build time.
 
 ## Features
 
-- **AI auto-categorization** — type "swiggy order 350" and it's tagged "Food" automatically
-- **Voice input** — mic button uses browser speech recognition to fill the description
-- **Screenshot/invoice upload** — upload a UPI payment confirmation or invoice; a vision AI model extracts the merchant and amount directly from the image
-- **Manual category override** — click any category badge to correct it when AI gets it wrong
-- **Spending breakdown** — donut chart by category
-- **AI savings suggestions** — analyzes your spending pattern and tells you where to cut back
-- **Excel export** — download expenses as a formatted .xlsx file
-- **Monthly reset with history** — "Clear All" archives the month's totals before wiping, and a Monthly History view shows month-over-month % change (with the ability to delete a mistaken archive entry)
+- JWT authentication with account-scoped expenses and monthly archives
+- AI auto-categorization and savings suggestions through Groq
+- Voice input through the browser Speech Recognition API
+- PNG, JPEG, or WebP payment screenshot upload (5 MB maximum)
+- Manual category override, charts, monthly history, and Excel export
 
-## Tech Stack
+## Checks
 
-- **Backend:** Spring Boot, Spring Data MongoDB, Apache POI (Excel export)
-- **Database:** MongoDB Atlas (cloud, free tier)
-- **Frontend:** React (Vite), Recharts, Web Speech API
-- **AI:** Groq API — `openai/gpt-oss-120b` (text categorization/insights), `qwen/qwen3.6-27b` (vision/OCR for screenshots)
-- **Deployment:** Render (backend, Docker), Netlify (frontend)
-
-## Architecture
-
-This is a two-repo project:
-- **Backend** (this repo): Spring Boot REST API
-- **Frontend:** [AI-Expense-Tracker-Frontend](https://github.com/gitesh2005/AI-Expense-Tracker-Frontend)
-
-## Local Setup
-
-### Backend
-1. Create a free [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register) cluster and get your connection string
-2. Copy `application.properties.example` to `application.properties`
-3. Fill in your MongoDB URI and Groq API key
-4. Run: `./mvnw spring-boot:run`
-
-### Frontend
-1. Clone the [frontend repo](https://github.com/gitesh2005/AI-Expense-Tracker-Frontend)
-2. Update `src/api/axiosConfig.js` with your backend URL (or `http://localhost:8080/api` for local)
-3. Run: `npm install && npm run dev`
-
-## Data Model (MongoDB Collections)
-
-**expenses**
-```json
-{
-  "description": "string",
-  "amount": "decimal",
-  "category": "string",
-  "expenseDate": "date"
-}
+```bash
+./mvnw test
 ```
 
-**monthly_archive**
-```json
-{
-  "monthLabel": "string",
-  "totalAmount": "decimal",
-  "categoryBreakdown": "JSON string",
-  "archivedDate": "date"
-}
-```
-
-## Future Scope
-
-- Native Android companion app for SMS-based automatic transaction detection
-- Multi-user support with authentication
-- Budget limits per category with alerts
+The repository CI also runs the frontend lint and production build.
